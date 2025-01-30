@@ -1,0 +1,224 @@
+/*====================NavBar====================*/
+.navbar {
+    width: 100%;
+    height: 7vh;
+    background-color: grey;
+    display: flex;
+}
+
+.nav-elems {
+    list-style-type: none;
+    display: inline-flex;
+    gap: 35px;
+    place-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.arrow {
+    width: 20px;
+    background-image: url(../assets/Arrow.svg);
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.menu-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0px 24px 0px 24px;
+    flex-direction: row;
+    grid-gap: 8px 8px;
+}
+
+
+.logo {
+    position: relative;
+    display: block;
+    width: 55px;
+    min-width: 55px;
+    height: 55px;
+    background-image: url(../assets/murzilka_logo.png);
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    margin-right: 40px;
+}
+
+
+.slidecontainer {
+    width: 100%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 48px;
+    border-radius: 20px;
+    border-color: black;
+    border-width: 3px;
+    background: grey;
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 60px;
+    height: 60px;
+    background: url('../assets/PICnoBorder.svg') no-repeat center center;
+    border-image: url('../assets/PICnoBorder.svg') round round;
+    background-size: contain;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 60px;
+    height: 60px;
+    border-color: black;
+    background: url('../assets/PICnoBorder.svg') no-repeat center center;
+    border-image: url('../assets/PICnoBorder.svg') round round;
+    background-size: contain;
+    cursor: pointer;
+}
+
+.dashboard-content {
+    position: relative;
+
+}
+
+.dashboard-content[data-bg=true]:before {
+    content: ' ';
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: black;
+    opacity: 0.6;
+    position: absolute;
+    z-index: 800;
+    transition: 0.3s;
+}
+
+.dashboard-content:before {
+    content: ' ';
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: black;
+    opacity: 0;
+    position: absolute;
+    z-index: -800;
+    transition: 0.3s;
+}
+
+.big-gear {
+    position: relative;
+    background: no-repeat url("../assets/bid-load-gear.png");
+    animation: 8s linear 0s normal none infinite running rot-back;
+    -webkit-animation: 8s linear 0s normal none infinite running rot-back;
+    transform-origin: center;
+    width: 166px;
+    height: 166px;
+    z-index: 850;
+
+}
+
+.small-gear {
+    position: relative;
+    background: no-repeat url("../assets/lil-load-gear.png");
+    animation: 5.4s linear 0s normal none infinite running rot;
+    -webkit-animation: 5.4s linear 0s normal none infinite running rot;
+    transform-origin: center;
+    top: 33px;
+    left: 112px;
+    width: 103px;
+    height: 102px;
+    z-index: 900;
+}
+
+@media screen and (max-width : 600px) {
+    .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 24px;
+        border-radius: 20px;
+        border-color: black;
+        border-width: 3px;
+        background: grey;
+        outline: none;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 40px;
+        height: 40px;
+        background: url('../assets/PICnoBorder.svg') no-repeat center center;
+        border-image: url('../assets/PICnoBorder.svg') round round;
+        background-size: contain;
+        cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 40px;
+        height: 40px;
+        border-color: black;
+        background: url('../assets/PICnoBorder.svg') no-repeat center center;
+        border-image: url('../assets/PICnoBorder.svg') round round;
+        background-size: contain;
+        cursor: pointer;
+    }
+
+}
+
+@keyframes rot {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes rot {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rot-back {
+    0% {
+        transform: rotate(360deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@-webkit-keyframes rot-back {
+    0% {
+        transform: rotate(360deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.loader-bg {
+    padding: 0;
+    background-image: url("../assets/loader-bg.jpg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}

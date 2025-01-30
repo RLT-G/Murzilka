@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css?family=Balsamiq Sans');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Balsamiq Sans", sans-serif;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+}
+
+.animc {
+    animation: swipe 700ms ease-out;
+}
+
+.sideBar {
+    transition: right 0.3s ease-in;
+    right: -100%;
+}
+
+.activeSideBar {
+    transition: right 0.7s ease-out;
+    right: 0;
+}
+
+
+@media screen and (max-width : 600px) {
+    .sideBar {
+        transition: right 0.3s ease-in;
+        right: -110%;
+    }
+
+    .activeSideBar {
+        transition: right 0.7s ease-out;
+        right: 0;
+    }
+}
+
+@keyframes offSwipe {
+    0% {
+        left: 60%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes swipe {
+    0% {
+        left: 100%;
+    }
+    100% {
+        left: 60%;
+    }
+}
+
+@layer components {
+
+    .box {
+        @apply relative flex flex-col w-full min-w-full md:min-w-[450px] md:px-3 md:px-6 pb-6 pt-5 md:pt-10 box-border border-[2px] border-solid border-black;
+    }
+
+    .btn {
+        @apply border-black flex place-items-center justify-center bg-[#E17777] border-[2px] p-5
+        before:content-[""] before:absolute before:h-[25px] before:w-full before:bottom-[-10px] before:rounded-[3px]
+        before:h-[25px] before:bottom-[4px] before:rounded-b-[10px] before:shadow-[0_9px_9px_0_rgba(0,0,0,0.2)];
+    }
+
+    .sidenav {
+        @apply flex fixed right-0 top-0 w-[250px] md:w-[384px] h-[100vh] px-4 pt-4 bg-black box-border flex-col items-center flex-shrink-0;
+    }
+}
