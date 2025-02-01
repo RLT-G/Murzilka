@@ -25,6 +25,7 @@
     "react-input-mask": "^2.0.4",
     "tronweb": "^6.0.1",
     "valtio": "^1.11.2",
+    "web3": "^4.16.0",
     "yup": "^1.3.2"
   },
   "devDependencies": {

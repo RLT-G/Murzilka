@@ -1,17 +1,26 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.handlers.wsgi import WSGIRequest
 from drf_spectacular.utils import extend_schema
 
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from allauth.socialaccount.models import SocialAccount
+from eth_account.messages import encode_defunct
 from django.conf import settings
+from web3 import Web3
 import urllib.parse
 import requests
+import random
+import string
+
+User = get_user_model()
+w3 = Web3(Web3.HTTPProvider(settings.WEB3_PROVIDER_URL))
 
 
 # Create your views here.
@@ -85,9 +94,6 @@ class GetFacebookLoginURLAPIView(APIView):
         return Response({"login_url": login_url})
     
 
-User = get_user_model()
-
-
 class GoogleLoginAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -142,9 +148,6 @@ class GoogleLoginAPIView(APIView):
         }, status=status.HTTP_200_OK)
     
 
-User = get_user_model()
-
-
 class FacebookLoginAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -187,3 +190,72 @@ class FacebookLoginAPIView(APIView):
             "access": str(refresh.access_token),
         }, status=status.HTTP_200_OK)
 # ---------------------------------------- AUTH ---------------------------------------- #
+
+
+# ---------------------------------------- METAMASK ---------------------------------------- #
+def generate_metamask_nonce():
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=20))
+
+
+class MetamaskNonceGenerationAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        metamask_wallet_address = request.data.get("wallet_address")
+        if not metamask_wallet_address or not w3.is_address(metamask_wallet_address):
+            return Response({"error": "Invalid address"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user, _ = User.objects.get_or_create(metamask_wallet_address=metamask_wallet_address)
+        user.metamask_nonce = generate_metamask_nonce()
+        user.save()
+        return Response({"nonce": user.metamask_nonce})
+    
+
+class MetamaskVerifySignatureAndLoginAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        metamask_wallet_address = request.data.get("wallet_address")
+        signature = request.data.get("signature")
+
+        user = get_object_or_404(User, metamask_wallet_address=metamask_wallet_address)
+        message = f"Log in to Murzilka. Your nonce: {user.metamask_nonce}"
+        encoded_message = encode_defunct(text=message)
+        recovered_address = w3.eth.account.recover_message(encoded_message, signature=signature)
+        
+        if recovered_address.lower() != metamask_wallet_address.lower():
+            return Response({"error": "Incorrect signature"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.metamask_nonce = None
+        refresh = RefreshToken.for_user(user)
+        user.save()
+
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }, status=status.HTTP_200_OK)
+    
+
+def get_metamask_balance(wallet_address):
+    checksum_address = Web3.to_checksum_address(wallet_address)
+    balance_wei = w3.eth.get_balance(checksum_address)
+    balance_eth = w3.from_wei(balance_wei, 'ether')
+    return balance_eth
+
+
+class MetamaskBalanceAPIView(APIView):
+    authentication_classes = [JWTAuthentication] 
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        wallet_address = user.metamask_wallet_address
+
+        if not wallet_address:
+            return Response({"error": "User has no linked wallet"}, status=400)
+
+        balance = get_metamask_balance(wallet_address)
+
+        return Response({"wallet_address": wallet_address, "balance": balance})
+    
+# ---------------------------------------- METAMASK ---------------------------------------- #

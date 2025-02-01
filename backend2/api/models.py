@@ -9,6 +9,9 @@ class CustomUser(AbstractUser):
     social_auth_provider = models.CharField(max_length=255, null=True, blank=True)
     social_auth_id = models.CharField(max_length=255, null=True, blank=True)
 
+    metamask_wallet_address = models.CharField(max_length=42, unique=True, blank=True, null=True)
+    metamask_nonce = models.CharField(max_length=255, blank=True, null=True)
+
     groups = models.ManyToManyField(
         Group,
         related_name='customuser_set',

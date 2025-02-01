@@ -7,6 +7,8 @@ import {useEffect} from "react";
 import {CheckCookieCallback} from "@/plugins/callbacks";
 import {ModalPage} from "@/components/common/modalPage";
 import {UninstalledComponent} from "@/components/common/UninstalledComponent";
+import loginWithMetaMask from "@/services/metamask";
+
 
 export const ConnectComponent = ({onClose}) => {
     const router = useRouter();
@@ -51,6 +53,12 @@ export const ConnectComponent = ({onClose}) => {
                 <WalletItem handleConnect={handleConnectTron} iconName={"tron"}
                             title={"Tron"}
                             className={"h-[30px] w-[30px]"}/>
+
+                <button
+                    style={{display: "flex", justifyContent: "start"}}
+
+                    onClick={() => {loginWithMetaMask()}}
+                    >MetaMask</button>
             </div>
         </ModalBody>
         <ModalFooter>

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # 'oauth2_provider',
     # 'kyc',
     'drf_spectacular',
+    'corsheaders',
     'api',
 ]
 
@@ -59,6 +60,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'settings.urls'
@@ -188,3 +191,9 @@ AUTHENTICATION_BACKENDS = (
 # }
 
 AUTH_USER_MODEL = 'api.CustomUser'  
+
+WEB3_PROVIDER_URL="https://bsc-dataseed.binance.org/"
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]

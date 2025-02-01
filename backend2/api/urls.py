@@ -14,4 +14,7 @@ urlpatterns = [
     path('facebook/get_url/', view=views.GetFacebookLoginURLAPIView.as_view(), name="facebook_url"),
     path('facebook/login/', view=views.FacebookLoginAPIView.as_view(), name="facebook_login"),
 
+    path('metamask/nonce_generation/', view=views.MetamaskNonceGenerationAPIView.as_view(), name='metamask_nonce_generation'),
+    path('metamask/verify_signature_and_login/', view=views.MetamaskVerifySignatureAndLoginAPIView.as_view(), name='metamask_verify_and_login'),
+    path('metamask/get_balance/', view=views.MetamaskBalanceAPIView.as_view(), name='metamask_balance')
 ]

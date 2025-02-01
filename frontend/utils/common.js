@@ -14,9 +14,15 @@ export const getSlug = () => {
     return decodeURIComponent(decodedName);
 }
 
+// export const Constants = {
+//     ym: process.env.YM,
+//     API_URL: process.env.REACT_APP_API_URL,
+//     PROD: process.env.PROD === 'production',
+// };
+
 export const Constants = {
     ym: process.env.YM,
-    API_URL: process.env.REACT_APP_API_URL,
+    API_URL: "http://localhost:8000/",
     PROD: process.env.PROD === 'production',
 };
 
