@@ -1,23 +1,32 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, permissions
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.core.handlers.wsgi import WSGIRequest
-from drf_spectacular.utils import extend_schema
-
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
-from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.utils import extend_schema
+from rest_framework import status, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .serializers import UserSerializer
+
 from allauth.socialaccount.models import SocialAccount
 from eth_account.messages import encode_defunct
+from tonsdk.utils import Address
+from tonclient.client import TonClient
+from tonclient.types import ParamsOfVerifySignature, KeyPair
+
+from django.core.handlers.wsgi import WSGIRequest
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from django.core.cache import cache
 from django.conf import settings
+
 from web3 import Web3
 import urllib.parse
 import requests
+import secrets
 import random
 import string
+import base64
+
 
 User = get_user_model()
 w3 = Web3(Web3.HTTPProvider(settings.WEB3_PROVIDER_URL))
@@ -259,3 +268,58 @@ class MetamaskBalanceAPIView(APIView):
         return Response({"wallet_address": wallet_address, "balance": balance})
     
 # ---------------------------------------- METAMASK ---------------------------------------- #
+
+
+# ---------------------------------------- TONKEEPER  ---------------------------------------- #
+class GetTonkeeperChallangeAPIView(APIView):
+    def post(self, request):
+        wallet_address = request.data.get("wallet_address")
+        if not wallet_address:
+            return Response({"error": "Wallet address is required"}, status=400)
+
+        challenge = secrets.token_hex(16)
+        cache.set(f"ton_challenge_{wallet_address}", challenge, timeout=300)
+
+        return Response({"challenge": challenge})
+
+
+class VerifyTonkeeperSignatureAPIView(APIView):
+    def post(self, request):
+        wallet_address = request.data.get("wallet_address")
+        signature = request.data.get("signature")
+
+        if not wallet_address or not signature:
+            return Response({"error": "Missing parameters"}, status=400)
+
+        challenge = cache.get(f"ton_challenge_{wallet_address}")
+        if not challenge:
+            return Response({"error": "Challenge expired or invalid"}, status=400)
+
+        try:
+            client = TonClient(config={"network": {"server_address": "net.ton.dev"}})
+
+            decoded_signature = base64.b64decode(signature)
+
+            params = ParamsOfVerifySignature(
+                message=challenge.encode(),
+                signature=decoded_signature,
+                public_key=wallet_address
+            )
+
+            result = client.crypto.verify_signature(params)
+
+            if not result.valid:
+                return Response({"error": "Invalid signature"}, status=400)
+
+            user, created = User.objects.get_or_create(tonkeeper_address=wallet_address)
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "access_token": str(refresh.access_token),
+                "refresh_token": str(refresh),
+            })
+        
+        except Exception as e:
+            return Response({"error": f"Internal error: {str(e)}"}, status=500)
+# ---------------------------------------- TONKEEPER ---------------------------------------- #
+

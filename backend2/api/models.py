@@ -12,6 +12,8 @@ class CustomUser(AbstractUser):
     metamask_wallet_address = models.CharField(max_length=42, unique=True, blank=True, null=True)
     metamask_nonce = models.CharField(max_length=255, blank=True, null=True)
 
+    tonkeeper_address = models.CharField(max_length=64, unique=True, blank=True, null=True)
+
     groups = models.ManyToManyField(
         Group,
         related_name='customuser_set',

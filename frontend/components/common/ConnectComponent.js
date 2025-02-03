@@ -8,6 +8,7 @@ import {CheckCookieCallback} from "@/plugins/callbacks";
 import {ModalPage} from "@/components/common/modalPage";
 import {UninstalledComponent} from "@/components/common/UninstalledComponent";
 import loginWithMetaMask from "@/services/metamask";
+import tonkeeperAuth from "@/services/tonkeeper";
 
 
 export const ConnectComponent = ({onClose}) => {
@@ -59,6 +60,11 @@ export const ConnectComponent = ({onClose}) => {
 
                     onClick={() => {loginWithMetaMask()}}
                     >MetaMask</button>
+                <button
+                    style={{display: "flex", justifyContent: "start"}}
+
+                    onClick={() => {tonkeeperAuth()}}
+                    >TonKeeper</button>
             </div>
         </ModalBody>
         <ModalFooter>
