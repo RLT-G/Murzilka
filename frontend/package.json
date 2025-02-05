@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.4.2",
+    "@tonconnect/sdk": "^3.0.6",
     "@tronweb3/tronwallet-adapter-react-hooks": "^1.1.7",
     "axios": "^1.5.1",
     "dotenv": "^16.4.5",

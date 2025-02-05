@@ -272,6 +272,8 @@ class MetamaskBalanceAPIView(APIView):
 
 # ---------------------------------------- TONKEEPER  ---------------------------------------- #
 class GetTonkeeperChallangeAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request):
         wallet_address = request.data.get("wallet_address")
         if not wallet_address:
@@ -284,6 +286,8 @@ class GetTonkeeperChallangeAPIView(APIView):
 
 
 class VerifyTonkeeperSignatureAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request):
         wallet_address = request.data.get("wallet_address")
         signature = request.data.get("signature")

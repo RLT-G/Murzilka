@@ -3,19 +3,20 @@ import {WalletItem} from "@/components/modalComponents/WalletItem";
 import {useRouter} from "next/navigation";
 import profileActions from "@/actions/profile";
 import {useWallet} from "@tronweb3/tronwallet-adapter-react-hooks";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {CheckCookieCallback} from "@/plugins/callbacks";
 import {ModalPage} from "@/components/common/modalPage";
 import {UninstalledComponent} from "@/components/common/UninstalledComponent";
 import loginWithMetaMask from "@/services/metamask";
 import tonkeeperAuth from "@/services/tonkeeper";
+import { TonConnect } from "@tonconnect/sdk";
 
 
 export const ConnectComponent = ({onClose}) => {
     const router = useRouter();
     const {address, connected, select, disconnect} = useWallet();
     const uninstalledDisclosure = useDisclosure();
-
+    
     const handleConnectTron = async () => {
         if (typeof window.tronLink === 'undefined') {
             uninstalledDisclosure.onOpen()
@@ -27,6 +28,27 @@ export const ConnectComponent = ({onClose}) => {
         router.refresh();
     }
 
+    // const [tonConnect, setTonConnect] = useState(null);
+    // function connectToTonkeeper(tonConnect) {
+    //     try {
+    //         tonConnect.connect({
+    //             universalLink: 'https://app.tonkeeper.com/ton-connect',
+    //             bridgeUrl: 'https://bridge.tonapi.io/bridge'
+    //         });
+    
+    //         console.log('Успешное подключение к Tonkeeper');
+    //     } catch (error) {
+    //         console.error('Ошибка подключения TonKeeper', error);
+    //     }
+    // }
+    // useEffect(() => {
+    //     if (typeof window !== "undefined") {
+    //         const tonConnect = new TonConnect()
+    //         connectToTonkeeper(tonConnect)
+    //         setTonConnect(tonConnect);
+    //     }
+    // }, []);
+    
     useEffect(() => {
         if (connected) {
             profileActions.authProfile(address).then(() => {
@@ -63,7 +85,7 @@ export const ConnectComponent = ({onClose}) => {
                 <button
                     style={{display: "flex", justifyContent: "start"}}
 
-                    onClick={() => {tonkeeperAuth()}}
+                    onClick={() => {tonkeeperAuth(tonConnect)}}
                     >TonKeeper</button>
             </div>
         </ModalBody>
