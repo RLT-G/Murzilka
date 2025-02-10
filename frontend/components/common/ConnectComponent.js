@@ -10,6 +10,7 @@ import {UninstalledComponent} from "@/components/common/UninstalledComponent";
 import loginWithMetaMask from "@/services/metamask";
 import tonkeeperAuth from "@/services/tonkeeper";
 import { TonConnect } from "@tonconnect/sdk";
+import connectWallet from "@/services/tron";
 
 
 export const ConnectComponent = ({onClose}) => {
@@ -87,6 +88,11 @@ export const ConnectComponent = ({onClose}) => {
 
                     onClick={() => {tonkeeperAuth(tonConnect)}}
                     >TonKeeper</button>
+                <button
+                    style={{display: "flex", justifyContent: "start"}}
+
+                    onClick={() => {connectWallet()}}
+                    >Tron</button>
             </div>
         </ModalBody>
         <ModalFooter>

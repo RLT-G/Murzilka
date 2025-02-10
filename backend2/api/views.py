@@ -327,3 +327,22 @@ class VerifyTonkeeperSignatureAPIView(APIView):
             return Response({"error": f"Internal error: {str(e)}"}, status=500)
 # ---------------------------------------- TONKEEPER ---------------------------------------- #
 
+
+# ---------------------------------------- TONKEEPER  ---------------------------------------- #
+class TronLoginAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        wallet_address = request.data.get("address")
+
+        if not wallet_address:
+            return Response({"error": "Не хватает данных"}, status=400)
+
+        user, created = User.objects.get_or_create(tron_wallet_address=wallet_address)
+        
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+        })
+# ---------------------------------------- TONKEEPER  ---------------------------------------- #

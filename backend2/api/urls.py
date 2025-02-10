@@ -20,5 +20,6 @@ urlpatterns = [
 
     path('tonkeeper/challange/', view=views.GetTonkeeperChallangeAPIView.as_view(), name='tonkeeper_challange'),
     path('tonkeeper/verify_signature_and_login/', view=views.VerifyTonkeeperSignatureAPIView.as_view(), name='tonkeeper_verify_and_login'),
-
+    
+    path('tron/login/', view=views.TronLoginAPIView.as_view()),
 ]

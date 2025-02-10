@@ -14,6 +14,10 @@ class CustomUser(AbstractUser):
 
     tonkeeper_address = models.CharField(max_length=64, unique=True, blank=True, null=True)
 
+    tron_wallet_address = models.CharField(max_length=42, unique=True, blank=True, null=True)
+    tron_nonce = models.CharField(max_length=255, blank=True, null=True)
+
+
     groups = models.ManyToManyField(
         Group,
         related_name='customuser_set',
