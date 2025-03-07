@@ -1,0 +1,12 @@
+.ClosePopUp {
+    opacity: 0;
+    visibility: hidden;
+    /* z-index: -1; */
+}
+.OpenPopUp{
+    opacity: 1;
+    visibility: visible;
+    /* z-index: 2; */
+}
+
+

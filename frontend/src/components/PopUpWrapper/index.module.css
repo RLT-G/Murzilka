@@ -1,0 +1,51 @@
+.PopUpWrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: 0.5s;
+    z-index: 2;
+}
+.PopUp{
+    max-width: 450px;
+    min-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    background-color: #000000;
+    border-radius: 14px;
+    padding: 16px 24px 16px 24px;
+    position: relative;
+}
+.CloseButton{
+    align-self: self-end;
+}
+.CloseButton2{
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+.CloseButton2:hover{
+    background-color: #FFF;
+}
+.CloseButton2:hover svg g{
+    fill: #000;
+    transition: 0.2s;
+}

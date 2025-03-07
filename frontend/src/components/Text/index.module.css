@@ -1,0 +1,16 @@
+.Text{
+    font-family: "Balsamiq Sans", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    color: #ffffff;
+}
+.Text.bold{
+    font-weight: 700;
+}
+.Text.black{
+    color: #000000;
+}
+.Text.big{
+    font-size: 24px;
+}

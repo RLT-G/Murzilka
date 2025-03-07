@@ -1,0 +1,73 @@
+.StakingWrapper{
+    margin-top: 128px;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    border-radius: 14px;
+    border: 2px solid #000000;
+    background-color: #FFFFFF;
+    min-width: 672px;
+    max-width: 672px;
+    margin-bottom: 200px;
+    position: relative;
+}
+.WalletButton{
+    width: 350px;
+    height: 80px;
+    align-self: center;
+    position: absolute;
+    bottom: -40px;
+}
+.WalletButton div {
+    position: absolute;
+    left: 20px;
+}
+.TitleBlock{
+    width: 350px;
+    height: 80px;
+    align-self: center;
+    position: absolute;
+    top: -40px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000000;
+}
+.MainPart{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 0 30px 0;
+    background-color: #fffade;
+    border-radius: 14px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.MainPart span{
+    text-align: center;
+}
+.SecondText{
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+}
+.Exclude, .Exclude2, .Exclude3, .Exclude4{
+    min-width: 69px;
+    height: 69px;
+    background: url(../../assets/Exclude1.svg) no-repeat;
+    background-size: cover;
+}
+.Exclude2{
+    transform: rotate(30deg) scale(0.8);
+}
+.Exclude3{
+    transform: rotate(65deg) scale(0.7);
+}
+.Exclude4{
+    transform: rotate(80deg) scale(0.6);
+}

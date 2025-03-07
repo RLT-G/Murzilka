@@ -1,0 +1,15 @@
+.WalletContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    width: 100%;
+    gap: 8px;
+}
+.TextLeft{
+    align-self: start;
+}
+.List{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}

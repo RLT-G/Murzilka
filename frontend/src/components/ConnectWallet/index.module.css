@@ -1,0 +1,44 @@
+.WalletContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    width: 100%;
+    gap: 8px;
+}
+.TronContainer, .MetamaskContainer, .tonkeeperContainer{
+    width: 100%;
+    height: 40px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    border-radius: 8px;
+    transition: 0.2s;
+    padding: 0 8px 0 8px;
+    cursor: pointer;
+}
+.TronContainer:hover, .MetamaskContainer:hover, .tonkeeperContainer:hover{
+    background-color: #FFF;
+}
+.TronContainer:hover span, .MetamaskContainer:hover span, .tonkeeperContainer:hover span{
+    color: #000;
+    transition: 0.2s;
+}
+.TronLogo{
+    width: 30px;
+    height: 30px;
+    background: url(../../assets/tron.svg) no-repeat;
+    background-size: cover;
+}
+.MetamaskLogo{
+    width: 34px;
+    height: 29px;
+    background: url(../../assets/metamask-icon.svg) no-repeat;
+    background-size: cover;
+}
+.tonkeeperLogo{
+    width: 30px;
+    height: 30px;
+    background: url(../../assets/Tonkeeper.png) no-repeat;
+    background-size: cover;
+    border-radius: 2px;
+}
