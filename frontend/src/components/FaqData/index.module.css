@@ -60,3 +60,11 @@
 .Arrow.ArrowClose{
     transform: rotate(0deg);
 }
+
+@media only screen and (max-width: 800px) {
+    .FaqDataContainer{
+        width: 100%;
+        max-width: none;
+        min-width: auto;
+    }
+}

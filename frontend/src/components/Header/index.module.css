@@ -51,3 +51,53 @@
     visibility: visible;
     /* z-index: 2; */
 }
+
+@media only screen and (max-width: 1024px) {
+    .headerNavBar {
+        gap: 30px;
+    }
+}
+@media only screen and (max-width: 800px) {
+    .Logo{
+        display: none;
+    }
+    .HeaderContainer{
+        justify-content: end;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .headerNavBarContainer{
+        justify-content: start;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .Logo{
+        display: none;
+    }
+    .HeaderContainer{
+        justify-content: end;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .headerNavBarContainer{
+        justify-content: start;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+@media only screen and (max-width: 470px) {
+    .ConnectWalletBtn{
+        width: 100px;
+    }
+    .ConnectWalletBtn div{
+        display: none;
+    }
+}
+@media only screen and (max-width: 450px) {
+    .headerNavBar{
+        gap: 5px;
+    }
+}

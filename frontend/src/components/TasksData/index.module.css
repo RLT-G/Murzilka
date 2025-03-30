@@ -45,14 +45,11 @@
     flex-direction: column;
     gap: 5px;
     align-items: center;
-    min-width: 150px;
 }
 .MzkValue, .PicValue{
     display: flex;
     gap: 5px;
     align-items: center;
-    /* min-width: 120px;
-    justify-content: space-between; */
 }
 .ConversionValue{
     display: flex;
@@ -239,6 +236,43 @@
     gap: 5px;
 }
 
+
+.MainContainer{
+    margin-top: 24px;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.MainText{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    height: 100%;
+}
+.Tasks{
+    width: 100%;
+    height: 90px;
+    background-color: #fff1c0;
+    border: 2px solid #000;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 24px;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 24px;
+    opacity: 0.5;
+}
+.TaskReward{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
 @media only screen and (max-width: 800px) {
     .StakingTotal{
         width: 100%;
@@ -247,6 +281,10 @@
     .StakingWrapper{
         width: 100%;
         min-width: auto;
+    }
+    .PicLogo{
+        min-width: 50px;
+        min-height: 50px;
     }
 }
 @media only screen and (max-width: 700px) {
@@ -274,28 +312,19 @@
         height: 60px;
        bottom: -30px;
     }
+    .Tasks{
+        height: 70px;
+    }
 }
 @media only screen and (max-width: 470px) {
     .losttext{
         display: none;
     }
-    .ConversionValue{
-        width: 50px;
-        height: 50px;
-    }
     .ConversionInner{
         gap: 0px;
     }
-}
-@media only screen and (max-width: 450px) {
     .ConversionValue{
-        width: 30px;
-        height: 30px;
-    }
-}
-@media only screen and (max-width: 380px) {
-    .StakingWrapper{
-        padding-left: 12px;
-        padding-right: 12px;
+        width: 50px;
+        height: 50px;
     }
 }

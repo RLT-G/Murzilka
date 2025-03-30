@@ -5,7 +5,7 @@
     width: 100%;
     gap: 8px;
 }
-.TronContainer, .MetamaskContainer, .tonkeeperContainer{
+.TronContainer, .MetamaskContainer, .tonkeeperContainer, .phantomContainer{
     width: 100%;
     height: 40px;
     display: flex;
@@ -16,10 +16,10 @@
     padding: 0 8px 0 8px;
     cursor: pointer;
 }
-.TronContainer:hover, .MetamaskContainer:hover, .tonkeeperContainer:hover{
+.TronContainer:hover, .MetamaskContainer:hover, .tonkeeperContainer:hover, .phantomContainer:hover{
     background-color: #FFF;
 }
-.TronContainer:hover span, .MetamaskContainer:hover span, .tonkeeperContainer:hover span{
+.TronContainer:hover span, .MetamaskContainer:hover span, .tonkeeperContainer:hover span, .phantomContainer:hover span{
     color: #000;
     transition: 0.2s;
 }
@@ -39,6 +39,13 @@
     width: 30px;
     height: 30px;
     background: url(../../assets/Tonkeeper.png) no-repeat;
+    background-size: cover;
+    border-radius: 2px;
+}
+.phantomLogo{
+    width: 30px;
+    height: 30px;
+    background: url(../../assets/Phantom-Icon_App_60x60.png) no-repeat;
     background-size: cover;
     border-radius: 2px;
 }

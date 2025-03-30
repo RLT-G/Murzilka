@@ -7,7 +7,7 @@ import QAPopUp from "../QAPopUp";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context";
 
-const Header = ({ openWalletPopUp, isHome, isQA, isTasks}) => {
+const Header = ({ openWalletPopUp, isHome, isQA, isTasks, openAccount }) => {
     const { isAuth } = useContext(UserContext);
     const [walletAddress, setWalletAddress] = useState('')
     
@@ -37,7 +37,7 @@ const Header = ({ openWalletPopUp, isHome, isQA, isTasks}) => {
     return (
         <>
             <div className={classes.HeaderContainer}>
-                <Logo width={'50px'} height={'50px'}/>
+                <Logo className={classes.Logo} width={'50px'} height={'50px'}/>
                 <div className={classes.headerNavBarContainer}>
                     <div className={classes.headerNavBar}>
                         <Text className={[classes.NavBarText, isHome && classes.currentPage].join(' ')} onClick={() => {navigate('/')}}>ДОМ</Text>
@@ -47,8 +47,8 @@ const Header = ({ openWalletPopUp, isHome, isQA, isTasks}) => {
                         </Text>
                     </div>
                 </div>
-                {isAuth && <Button needWallet={true} onClick={openWalletPopUp} disabled>{walletAddress}</Button>}
-                {!isAuth && <Button needWallet={true} onClick={openWalletPopUp}>Подключить</Button>}
+                {isAuth && <Button className={classes.ConnectWalletBtn} needWallet={true} onClick={() => {openAccount()}}>{walletAddress}</Button>}
+                {!isAuth && <Button className={classes.ConnectWalletBtn} needWallet={true} onClick={openWalletPopUp}>Подключить</Button>}
             </div>
         </>
     )

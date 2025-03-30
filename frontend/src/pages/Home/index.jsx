@@ -8,6 +8,7 @@ import PopUpWrapper from "../../components/PopUpWrapper";
 import ConnectWallet from "../../components/ConnectWallet";
 import Guide from "../../components/Guide";
 import Base from "../../components/Base";
+import AccountPopUp from "../../components/AccountPopUp";
 
 const Home = () => {
     const [ connectWalletIsOpen, setConnectWalletIsOpen ] = useState(false)
@@ -22,19 +23,25 @@ const Home = () => {
     const openBase = () => {setBaseIsOpen(true)}
     const closeBase = () => {setBaseIsOpen(false)} 
 
+    const [ accountIsOpen, setAccountIsOpen ] = useState(false)
+    const openAccount = () => { setAccountIsOpen(true) }
+    const closeAccount = () => { setAccountIsOpen(false) }
+
     return (
         <>
             <Wrapper>
-                <Header openWalletPopUp={openWalletPopUp} isHome/>
+                <Header openWalletPopUp={openWalletPopUp} openAccount={openAccount} isHome/>
                 <Staking openWalletPopUp={openWalletPopUp} openGuide={openGuide} openBase={openBase}/>
                 <Footer />
+
                 <ConnectWallet onClose={closeWalletPopUp}
                     className={connectWalletIsOpen ? classes.OpenPopUp : classes.ClosePopUp}/>
                 <Guide onClose={closeGuide}
                     className={guideIsOpen ? classes.OpenPopUp : classes.ClosePopUp}/>
                 <Base onClose={closeBase}
                     className={baseIsOpen ? classes.OpenPopUp : classes.ClosePopUp}/>
-
+                <AccountPopUp onClose={closeAccount}
+                    className={accountIsOpen ? classes.OpenPopUp : classes.ClosePopUp}/>
             </Wrapper>
         </>
     )

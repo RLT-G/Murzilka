@@ -1,0 +1,75 @@
+.AccountWrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    width: 380px;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-left: 2px solid #000;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 2;
+    padding: 16px;
+}
+.AccountButtons{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 16px;
+}
+.AccountInfo, .AccountInfo2{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff1c0;
+    border: 2px solid #f2d078;
+    border-radius: 8px;
+    padding: 16px;
+    gap: 16px;
+}
+.AccountInfo2{
+    margin-top: 16px;
+}
+.Account{
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+.AccountLogo{
+    background: #fff1c0;
+    border: 2px solid #f2d078;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+}
+.AccountInner{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-around;
+    height: 100%;
+
+}
+.AccountTotal{
+    width: 100%;
+    display: flex;
+}
+.TotalContainer{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+}
+.AccountBtn{
+    min-width: 100px
+}
+
+@media only screen and (max-width: 800px) {
+    .AccountWrapper{
+        width: 100%;
+        border: 2px solid #000;
+    }
+}

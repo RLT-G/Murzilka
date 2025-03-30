@@ -8,17 +8,12 @@ import { UserContext } from "../../context";
 import { MetamaskService } from "../../api/MetamaskService";
 
 const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
-    const { isAuth, inStaking, setInStaking } = useContext(UserContext);
+    const { isAuth, inStaking, setInStaking, totalMZK, totalPIC, mzkBalance, stakingAmount, setStakingAmount, updateInitValues } = useContext(UserContext);
     const [ balance, setBalance ] = useState(0)
     const [value, setValue] = useState(0)
     const conversion = 1
 
-    const getTokenBalance = async () => {
-        const walletAddress = localStorage.getItem("walletAddress")
-        const balance = await MetamaskService.getTokenBalance(walletAddress)
-        console.log("BALANCE MZK:", balance)
-        setBalance(Number(balance))
-    }
+    useEffect(() => {setBalance(mzkBalance)}, [mzkBalance])
     
     const stakeTokens = async () => {
         if (balance != 0 && value != 0 && value <= balance) {
@@ -26,6 +21,8 @@ const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
             if (response) {
                 localStorage.setItem('inStaking', 'true')
                 setInStaking(true)
+                setStakingAmount(value)
+                await updateInitValues()
             }
         }
     }
@@ -34,6 +31,7 @@ const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
         if (response) {
             localStorage.removeItem('inStaking')
             setInStaking(false)
+            await updateInitValues()
         }
     }
 
@@ -45,27 +43,26 @@ const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
 
     useEffect(() => {
         if (isAuth) {
-            getTokenBalance()
         }
     }, [isAuth])
     return (
         <>
-            <div className={classes.StakingTotal}>
+            {isAuth && <div className={classes.StakingTotal}>
                 <div className={classes.TotalMZK}>
                     <Text black bold>TOTAL MZK</Text>
                     <div className={classes.TotalMZKValue}>
                         <Logo width={'30px'} height={'30px'} />
-                        <Text black>0</Text>
+                        <Text black>{totalMZK}</Text>
                     </div>
                 </div>
                 <div className={classes.TotalPIC}>
                     <Text black bold>TOTAL PIC</Text>
                     <div className={classes.TotalPICValue}>
                         <PicLogo width={'30px'} height={'30px'}/>
-                        <Text black>0</Text>
+                        <Text black>{totalPIC}</Text>
                     </div>
                 </div>
-            </div>
+            </div>}
 
             <div className={classes.StakingWrapper} style={isAuth ? {marginTop: '62px'} : null}>
                 <div className={classes.TitleContainer}>
@@ -74,7 +71,7 @@ const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
                         <Text black big>Стейкай MZK, получи PICS</Text>
                         <PicLogo width={'30px'} height={'30px'}/>
                     </div>
-                    <Button onClick={openGuide}>Новичек?</Button>
+                    <Button className={classes.ButtonNew} onClick={openGuide}>Новичек?</Button>
                 </div>
                 <div className={classes.Conversion}>
                     <Text black big>ПОСМОТРИ НА КОНВЕРСИЮ СВОИХ МОНЕТ!</Text>
@@ -83,7 +80,7 @@ const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
                             <Text black big>MZK</Text>
                             <div className={classes.MzkValue}>
                                 <Logo width={'30px'} height={'30px'}/>
-                                <Text black big>{value}</Text>
+                                <Text black big>{inStaking ? stakingAmount : value}</Text>
                             </div>
                         </div>
 
@@ -95,7 +92,7 @@ const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
                             <Text black big>PIC</Text>
                             <div className={classes.PicValue}>
                                 <PicLogo width={'30px'} height={'30px'}/>
-                                <Text black big>{value * conversion}</Text>
+                                <Text black big>{inStaking ? stakingAmount * conversion : value * conversion}</Text>
                             </div>
                         </div>
                     </div>
@@ -110,7 +107,7 @@ const Staking = ({ openWalletPopUp, openGuide, openBase }) => {
                             <Text black>Застейкано (MIN.1)</Text>
                             <input className={classes.Input} type="number" value={value} onChange={handleChange}/>
                         </div>
-                        <Text black>{balance - value} Потеряно Макс.</Text>
+                        <Text className={classes.losttext} black>{isAuth ? balance - value : 69000000 - value} Потеряно Макс.</Text>
                     </div>
 
 

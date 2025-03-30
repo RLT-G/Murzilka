@@ -6,19 +6,21 @@ from django.utils.timezone import now
 
 
 class CustomUser(AbstractUser):
+    WALLETS = [
+        ('tron', 'Tron'),
+        ('metamask', 'Metamask'),
+        ('tonkeeper', 'Tonkeeper'),
+        ('phantom', 'Phantom'),
+    ]
     email_verified = models.BooleanField(default=False)
     social_auth_provider = models.CharField(max_length=255, null=True, blank=True)
     social_auth_id = models.CharField(max_length=255, null=True, blank=True)
 
-    metamask_wallet_address = models.CharField(max_length=42, unique=True, blank=True, null=True)
-    metamask_nonce = models.CharField(max_length=255, blank=True, null=True)
-
-    tonkeeper_address = models.CharField(max_length=64, unique=True, blank=True, null=True)
-
-    tron_wallet_address = models.CharField(max_length=42, unique=True, blank=True, null=True)
-    tron_nonce = models.CharField(max_length=255, blank=True, null=True)
-
-    pic_balance = models.PositiveIntegerField(default=0)
+    wallet_address = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    wallet = models.CharField(max_length=64, blank=True, null=True, choices=WALLETS)
+    nonce = models.CharField(max_length=255, blank=True, null=True)
+    total_mzk = models.CharField(max_length=512, blank=True, null=True, default='0')
+    total_pic = models.CharField(max_length=512, blank=True, null=True, default='0')
     
     groups = models.ManyToManyField(
         Group,
@@ -31,6 +33,9 @@ class CustomUser(AbstractUser):
         related_name='customuser_permissions_set',
         blank=True,
     )
+
+    def __str__(self):
+        return self.username
 
 
 User = get_user_model()
@@ -49,7 +54,7 @@ class Stake(models.Model):
 
 class UserCurrency(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="currency")
-    balance = models.DecimalField("PIC", max_digits=20, decimal_places=10, default=0)  # Баланс PIC
+    balance = models.CharField("PIC", max_length=255, default="0")  # Баланс PIC
 
     def __str__(self):
         return f"{self.user.username} balance: {self.balance} PIC"

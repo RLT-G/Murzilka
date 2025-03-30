@@ -24,4 +24,33 @@
     border: none;
     border-radius: 50%;
     border: 1px solid #FFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.socialButton:nth-child(1) .socialButtonBackground{
+    width: 25px;
+    height: 25px;
+    background: url(../../assets/telegram-svgrepo-com.svg) no-repeat;
+    background-size: cover;
+    position: relative;
+    left: -2px;
+}
+.socialButton:nth-child(2) .socialButtonBackground{
+    width: 25px;
+    height: 25px;
+    background: url(../../assets/facebook-svgrepo-com.svg) no-repeat;
+    background-size: cover;
+}
+.socialButton:nth-child(3) .socialButtonBackground{
+    width: 25px;
+    height: 25px;
+    background: url(../../assets/instagram-svgrepo-com.svg) no-repeat;
+    background-size: cover;
+}
+.socialButton:nth-child(4) .socialButtonBackground{
+    width: 25px;
+    height: 25px;
+    background: url(../../assets/email-svgrepo-com.svg) no-repeat;
+    background-size: cover;
 }

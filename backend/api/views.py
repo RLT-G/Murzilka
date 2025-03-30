@@ -26,10 +26,15 @@ import secrets
 import random
 import string
 import base64
-
+from datetime import datetime
 from django.utils.timezone import now
-from .models import Stake
-# from .serializers import StakeSerializer
+from .models import Stake, UserCurrency
+from nacl.exceptions import BadSignatureError
+import base64
+from solders.signature import Signature
+from solders.pubkey import Pubkey
+from base58 import b58decode
+from nacl.exceptions import BadSignatureError
 
 
 User = get_user_model()
@@ -214,32 +219,35 @@ class MetamaskNonceGenerationAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        metamask_wallet_address = request.data.get("wallet_address")
-        if not metamask_wallet_address or not w3.is_address(metamask_wallet_address):
+        wallet_address = request.data.get("wallet_address")
+        if not wallet_address or not w3.is_address(wallet_address):
             return Response({"error": "Invalid address"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user, _ = User.objects.get_or_create(metamask_wallet_address=metamask_wallet_address)
-        user.metamask_nonce = generate_metamask_nonce()
+        user, _ = User.objects.get_or_create(wallet_address=wallet_address, wallet='metamask')
+        user.nonce = generate_metamask_nonce()
+        user.username = f"metamask - {wallet_address}"
         user.save()
-        return Response({"nonce": user.metamask_nonce})
+
+        user_currency, _ = UserCurrency.objects.get_or_create(user=user)
+        return Response({"nonce": user.nonce})
     
 
 class MetamaskVerifySignatureAndLoginAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        metamask_wallet_address = request.data.get("wallet_address")
+        wallet_address = request.data.get("wallet_address")
         signature = request.data.get("signature")
 
-        user = get_object_or_404(User, metamask_wallet_address=metamask_wallet_address)
-        message = f"Вход в Мурзилку. Ваш Nonce: {user.metamask_nonce}"
+        user = get_object_or_404(User, wallet_address=wallet_address)
+        message = f"Вход в Мурзилку. Ваш Nonce: {user.nonce}"
         encoded_message = encode_defunct(text=message)
         recovered_address = w3.eth.account.recover_message(encoded_message, signature=signature)
         
-        if recovered_address.lower() != metamask_wallet_address.lower():
+        if recovered_address.lower() != wallet_address.lower():
             return Response({"error": "Incorrect signature"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user.metamask_nonce = None
+        user.nonce = None
         refresh = RefreshToken.for_user(user)
         user.save()
 
@@ -262,7 +270,7 @@ class MetamaskBalanceAPIView(APIView):
 
     def get(self, request):
         user = request.user
-        wallet_address = user.metamask_wallet_address
+        wallet_address = user.wallet_address
 
         if not wallet_address:
             return Response({"error": "User has no linked wallet"}, status=400)
@@ -273,162 +281,225 @@ class MetamaskBalanceAPIView(APIView):
     
 # ---------------------------------------- METAMASK ---------------------------------------- #
 
-
-# ---------------------------------------- TONKEEPER  ---------------------------------------- #
-class GetTonkeeperChallangeAPIView(APIView):
+# ---------------------------------------- PHANTOM  ---------------------------------------- #
+class PhantomVerifySignatureAndLoginAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    def post(self, request):
-        wallet_address = request.data.get("wallet_address")
-        if not wallet_address:
-            return Response({"error": "Wallet address is required"}, status=400)
-
-        challenge = secrets.token_hex(16)
-        cache.set(f"ton_challenge_{wallet_address}", challenge, timeout=300)
-
-        return Response({"challenge": challenge})
-
-
-class VerifyTonkeeperSignatureAPIView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        wallet_address = request.data.get("wallet_address")
-        signature = request.data.get("signature")
-
-        if not wallet_address or not signature:
-            return Response({"error": "Missing parameters"}, status=400)
-
-        challenge = cache.get(f"ton_challenge_{wallet_address}")
-        if not challenge:
-            return Response({"error": "Challenge expired or invalid"}, status=400)
-
+    def post(self, request: WSGIRequest):
         try:
-            client = TonClient(config={"network": {"server_address": "net.ton.dev"}})
+            wallet_address = request.data.get("public_key")
+            message = request.data.get("message")
+            signature = request.data.get("signature")
 
-            decoded_signature = base64.b64decode(signature)
+            if not wallet_address or not message or not signature:
+                return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
 
-            params = ParamsOfVerifySignature(
-                message=challenge.encode(),
-                signature=decoded_signature,
-                public_key=wallet_address
-            )
+            if not self.verify_signature(wallet_address, message, signature):
+                return Response({"error": "Invalid signature"}, status=status.HTTP_400_BAD_REQUEST)
 
-            result = client.crypto.verify_signature(params)
+            user, _ = User.objects.get_or_create(wallet_address=wallet_address, wallet='phantom')
+            user.username = f"phantom - {wallet_address}"
+            user.save()
 
-            if not result.valid:
-                return Response({"error": "Invalid signature"}, status=400)
-
-            user, created = User.objects.get_or_create(tonkeeper_address=wallet_address)
-
+            user_currency, _ = UserCurrency.objects.get_or_create(user=user)
             refresh = RefreshToken.for_user(user)
             return Response({
-                "access_token": str(refresh.access_token),
-                "refresh_token": str(refresh),
-            })
-        
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
-            return Response({"error": f"Internal error: {str(e)}"}, status=500)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def verify_signature(self, public_key: str, message: str, signature: list) -> bool:
+        """Проверка подписи Phantom"""
+        try:
+            decoded_pubkey = b58decode(public_key)  # Конвертируем Base58 в байты (32 байта)
+            verify_key = Pubkey(decoded_pubkey)
+
+            message_bytes = message.encode()
+            signature_bytes = bytes(signature)  # Преобразуем массив чисел в байты
+            signature_obj = Signature(signature_bytes)
+            
+            return signature_obj.verify(verify_key, message_bytes)
+        
+        except BadSignatureError:
+            return False
+        except Exception as e:
+            print(f"Signature verification error: {e}")
+            return False
+# ---------------------------------------- PHANTOM  ---------------------------------------- #
+
+# ---------------------------------------- TRONLINK ---------------------------------------- #
+class TronVerifySignatureAndLoginAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request: WSGIRequest):
+        wallet_address = request.data.get("wallet_address")
+
+        if not wallet_address:
+            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user, _ = User.objects.get_or_create(wallet_address=wallet_address, wallet='tron')
+        user.username = f"tron - {wallet_address}"
+        user.save()
+
+        user_currency, _ = UserCurrency.objects.get_or_create(user=user)
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }, status=status.HTTP_200_OK)
+# ---------------------------------------- TRONLINK ---------------------------------------- #
+
+# ---------------------------------------- TONKEEPER ---------------------------------------- #
+
+class TonkeeperVerifySignatureAndLoginAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        wallet_address = request.data.get("wallet_address")
+
+        if not wallet_address:
+            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user, _ = User.objects.get_or_create(wallet_address=wallet_address, wallet='tonkeeper')
+        user.username = f"tonkeeper - {wallet_address}"
+        user.save()
+
+        user_currency, _ = UserCurrency.objects.get_or_create(user=user)
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }, status=status.HTTP_200_OK)
 # ---------------------------------------- TONKEEPER ---------------------------------------- #
 
 
-# ---------------------------------------- TRON  ---------------------------------------- #
-class TronLoginAPIView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        wallet_address = request.data.get("address")
-
-        if not wallet_address:
-            return Response({"error": "Не хватает данных"}, status=400)
-
-        user, created = User.objects.get_or_create(tron_wallet_address=wallet_address)
-        
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "access_token": str(refresh.access_token),
-            "refresh_token": str(refresh),
-        })
-# ---------------------------------------- TRON  ---------------------------------------- #
-
-
-from .models import Stake
-from datetime import datetime
-
-
+# ---------------------------------------- MAIN  ---------------------------------------- #
 class StakingAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication] 
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        """Отправка токенов в стейкинг"""
         user = request.user
-        amount = request.data.get("amount")
-        address = user.metamask_wallet_address
-        checksum_address = Web3.to_checksum_address(address)
+        wallet_address = Web3.to_checksum_address(user.wallet_address)
+        transaction_hash = request.data.get("th")
 
-        if not amount or int(amount) <= 0:
-            return Response({"error": "Invalid amount"}, status=400)
+        if not transaction_hash:
+            return Response({"error": "Не указан th"}, status=status.HTTP_400_BAD_REQUEST)
 
-        w3 = Web3(Web3.HTTPProvider(settings.WEB3_PROVIDER_URL))
-        contract = w3.eth.contract(address=settings.CONTRACT_ADDRESS, abi=settings.CONTRACT_ABI)
-        private_key = settings.PRIVATE_KEY
-        account = w3.eth.account.from_key(private_key)
+        try:
+            tx = w3.eth.get_transaction(transaction_hash)
 
-        if account.address.lower() != checksum_address.lower():
-            return Response({"error": "Private key does not match the sender's address"}, status=400)
+            tx_from = Web3.to_checksum_address(tx["from"])
+            tx_to = Web3.to_checksum_address(tx["to"])
+            contract_address = Web3.to_checksum_address(settings.STAKING_CONTRACT_ADDRESS)
 
-        txn = contract.functions.stake(int(amount)).build_transaction({
-            "from": checksum_address,
-            "gas": 200000,
-            "gasPrice": w3.to_wei("10", "gwei"),
-            "nonce": w3.eth.get_transaction_count(checksum_address),
-        })
+            if tx_from != wallet_address:
+                return Response({"error": "Транзакция не принадлежит пользователю"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if tx_to != contract_address:
+                return Response({"error": "Транзакция не связана со стейкингом"}, status=status.HTTP_400_BAD_REQUEST)
 
-        signed_txn = w3.eth.account.sign_transaction(txn, private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        Stake.objects.create(user=user, amount=amount, start_time=datetime.now())
-        return Response({"message": "Tokens staked", "tx_hash": tx_hash.hex()}, status=200)
+            contract = w3.eth.contract(address=contract_address, abi=settings.STAKING_ABI)
+            decoded_input = contract.decode_function_input(tx["input"])
+            
+            if decoded_input[0].fn_name != "stake":
+                return Response({"error": "Транзакция не является стейкингом"}, status=status.HTTP_400_BAD_REQUEST)
 
+            stake_amount = Web3.from_wei(decoded_input[1]["_amount"], "ether")
+
+            receipt = w3.eth.get_transaction_receipt(transaction_hash)
+            if receipt["status"] != 1:
+                return Response({"error": "Транзакция неуспешна"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user_stake, created = Stake.objects.get_or_create(
+                user=user,
+                amount=str(stake_amount),
+                start_time=datetime.now(),
+                is_active=True
+            )
+            user.total_mzk = float(user.total_mzk) + float(stake_amount)
+            user.save()
+
+            if created:
+                return Response({"success": "Стейкинг подтвержден", "amount": str(stake_amount)}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"success": "Транзакция уже сохранена"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
     def delete(self, request):
-        """Вывод токенов из стейкинга"""
         user = request.user
-        stake = Stake.objects.filter(user=user, is_active=True).first()
+        wallet_address = Web3.to_checksum_address(user.wallet_address)
+        transaction_hash = request.data.get("th")
 
-        if not stake:
-            return Response({"error": "No active stake"}, status=400)
+        if not transaction_hash:
+            return Response({"error": "Не указан th"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Получаем адрес кошелька пользователя
-        address = user.metamask_wallet_address
-        checksum_address = Web3.to_checksum_address(address)
+        try:
+            tx = w3.eth.get_transaction(transaction_hash)
+            tx_from = Web3.to_checksum_address(tx["from"])
+            tx_to = Web3.to_checksum_address(tx["to"])
+            contract_address = Web3.to_checksum_address(settings.STAKING_CONTRACT_ADDRESS)
 
-        # Подключаемся к локальному Hardhat-блокчейну
-        w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545/'))  # Локальный блокчейн Hardhat
+            if tx_from != wallet_address:
+                return Response({"error": "Транзакция не принадлежит пользователю"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if tx_to != contract_address:
+                return Response({"error": "Транзакция не связана со стейкингом"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Загружаем контракт стейкинга
-        contract = w3.eth.contract(address=settings.CONTRACT_ADDRESS, abi=settings.CONTRACT_ABI)
+            contract = w3.eth.contract(address=contract_address, abi=settings.STAKING_ABI)
+            decoded_input = contract.decode_function_input(tx["input"])
 
-        # Создаем транзакцию для вывода токенов из стейкинга
-        txn = contract.functions.unstake().build_transaction({
-            "from": checksum_address,
-            "gas": 200000,
-            "gasPrice": w3.to_wei("10", "gwei"),
-            "nonce": w3.eth.get_transaction_count(checksum_address)
-        })
+            if decoded_input[0].fn_name != "unstake":
+                return Response({"error": "Транзакция не является анстейкингом"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Подписываем транзакцию
-        signed_txn = w3.eth.account.sign_transaction(txn, settings.PRIVATE_KEY)
+            receipt = w3.eth.get_transaction_receipt(transaction_hash)
+            if receipt["status"] != 1:
+                return Response({"error": "Транзакция неуспешна"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Отправляем транзакцию
-        tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            user_stake = Stake.objects.filter(user=user, is_active=True).first()
+            if user_stake:
+                user_stake.is_active = False
+                user_stake.end_time = datetime.now()
+                user_stake.save()
+                return Response({"success": "Стейк деактивирован"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Активный стейк не найден"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Рассчитываем количество недавних недель стейкинга
-        weeks_staked = (datetime.now() - stake.start_time).days // 7
-        pic_rewards = weeks_staked * stake.amount
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Деактивируем стейк
-        stake.is_active = False
-        stake.save()
 
-        return Response({"message": "Tokens unstaked", "rewards": pic_rewards, "tx_hash": tx_hash.hex()}, status=200)
+class GetTotalValues(APIView):
+    authentication_classes = [JWTAuthentication] 
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request: WSGIRequest):
+        user = request.user
+        total_pic = user.total_pic
+        total_mzk = user.total_mzk
+        return Response({
+            "total_pic": total_pic,
+            "total_mzk": total_mzk
+        }, status=status.HTTP_200_OK)
+    
 
+class HasActiveStakingAPIView(APIView):
+    authentication_classes = [JWTAuthentication] 
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request: WSGIRequest):
+        user = request.user
+        user_stake = Stake.objects.filter(user=user).filter(is_active=True).first()
+        if user_stake:
+            return Response({
+                "answer": True,
+                "amount": user_stake.amount
+            }, status=status.HTTP_200_OK)
+        
+        return Response({
+            "answer": False
+        }, status=status.HTTP_200_OK)
+# ---------------------------------------- MAIN  ---------------------------------------- #
+        

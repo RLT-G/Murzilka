@@ -71,3 +71,59 @@
 .Exclude4{
     transform: rotate(80deg) scale(0.6);
 }
+
+@media only screen and (max-width: 800px) {
+    .StakingTotal{
+        width: 100%;
+        min-width: auto;
+    }
+    .StakingWrapper{
+        width: 100%;
+        min-width: auto;
+        max-width: none;
+    }
+}
+@media only screen and (max-width: 700px) {
+    .Mzk, .Pic{
+        min-width: none;
+    }
+    .ConversionInner{
+        gap: 15px;
+    }
+}
+@media only screen and (max-width: 550px) {
+    .ButtonNew{
+        display: none;
+    }
+    .TitleBlock{
+        width: 200px;
+        height: 40px;
+        top: -20px;
+    }
+    .StakingWrapper{
+        padding: 24px;
+    }
+    .WalletButton{
+        width: 200px;
+        height: 60px;
+       bottom: -30px;
+    }
+}
+@media only screen and (max-width: 480px) {
+    .WalletButton{
+        height: 40px;
+        bottom: -20px;
+    }
+}
+@media only screen and (max-width: 470px) {
+    .losttext{
+        display: none;
+    }
+    .ConversionInner{
+        gap: 0px;
+    }
+    .ConversionValue{
+        width: 50px;
+        height: 50px;
+    }
+}

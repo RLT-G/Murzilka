@@ -5,18 +5,22 @@ import Header from "../../components/Header";
 import FaqData from "../../components/FaqData";
 import Wrapper from "../../components/Wrapper";
 import ConnectWallet from "../../components/ConnectWallet";
+import AccountPopUp from "../../components/AccountPopUp";
 
 const Faq = () => {
     const [ connectWalletIsOpen, setConnectWalletIsOpen ] = useState(false)
     const openWalletPopUp = () => { setConnectWalletIsOpen(true) }
     const closeWalletPopUp = () => { setConnectWalletIsOpen(false) }
-
+    
+    const [ accountIsOpen, setAccountIsOpen ] = useState(false)
+    const openAccount = () => { setAccountIsOpen(true) }
+    const closeAccount = () => { setAccountIsOpen(false) }
     
     return (
         <>
             <Wrapper>
                 
-                <Header openWalletPopUp={openWalletPopUp} isQA/>
+                <Header openWalletPopUp={openWalletPopUp} openAccount={openAccount} isQA/>
 
                 <FaqData />
 
@@ -24,6 +28,8 @@ const Faq = () => {
 
                 <ConnectWallet onClose={closeWalletPopUp}
                     className={connectWalletIsOpen ? classes.OpenPopUp : classes.ClosePopUp}/>
+                <AccountPopUp onClose={closeAccount}
+                    className={accountIsOpen ? classes.OpenPopUp : classes.ClosePopUp}/>
             </Wrapper>
         </>
     )

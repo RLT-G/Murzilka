@@ -8,7 +8,6 @@ import About from "./pages/About";
 import Faq from "./pages/Faq";
 import Tasks from "./pages/Tasks";
 
-
 const App = () => {
   const routes = [
     { path: "/", component: Home, exact: true },
@@ -32,5 +31,5 @@ const App = () => {
 };
 
 createRoot(document.getElementById('root')).render(
-  <App />
+    <App />
 )

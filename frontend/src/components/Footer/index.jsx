@@ -8,10 +8,18 @@ const Footer = () => {
             <div className={classes.FooterContainer}>
                 <Text bold big>СВЯЖИСЬ С НАМИ</Text>
                 <div className={classes.socialButtons}>
-                    <button className={classes.socialButton}></button>
-                    <button className={classes.socialButton}></button>
-                    <button className={classes.socialButton}></button>
-                    <button className={classes.socialButton}></button>
+                    <button className={classes.socialButton}>
+                        <div className={classes.socialButtonBackground}></div>
+                    </button>
+                    <button className={classes.socialButton}>
+                        <div className={classes.socialButtonBackground}></div>
+                    </button>
+                    <button className={classes.socialButton}>
+                        <div className={classes.socialButtonBackground}></div>
+                    </button>
+                    <button className={classes.socialButton}>
+                        <div className={classes.socialButtonBackground}></div>
+                    </button>
                 </div>
             </div>
         </>
